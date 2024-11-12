@@ -16,6 +16,9 @@ public class MovePositionByAxis : MonoBehaviour
     [SerializeField]
     private Rigidbody physicsBody;
 
+    [SerializeField]
+    private bool moveWithJoystick= false;
+
 
     private void Start()
     {
@@ -29,11 +32,23 @@ public class MovePositionByAxis : MonoBehaviour
 
     void Update()
     {
-        Vector3 newVelocity = InputManager.instance.movementInput * speed;
-        newVelocity.y = physicsBody.velocity.y;
+        if (moveWithJoystick)
+        {
+            Vector3 joystickDirection = new Vector3(UIManager.instance.Joystick.Direction.x, 0.0f, UIManager.instance.Joystick.Direction.y);
 
-        physicsBody.velocity =  newVelocity;
+            Vector3 newVelocity = joystickDirection * speed;
+            newVelocity.y = physicsBody.velocity.y;
 
+            physicsBody.velocity = newVelocity;
+        }
+        else
+        {
+            Vector3 newVelocity = InputManager.instance.movementInput * speed;
+            newVelocity.y = physicsBody.velocity.y;
+
+            physicsBody.velocity = newVelocity;
+        }
+        
     }
 
     private void Jump(InputAction.CallbackContext callbackContext)

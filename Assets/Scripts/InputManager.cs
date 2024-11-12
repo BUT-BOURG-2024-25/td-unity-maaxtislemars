@@ -1,8 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem;
+using Touch = UnityEngine.InputSystem.EnhancedTouch.jump;
+
 
 public class InputManager : MonoBehaviour
 {
@@ -17,10 +21,42 @@ public class InputManager : MonoBehaviour
     private InputActionReference MouseClickAction = null;
 
     public static InputManager instance {  get { return _instance; } }
-
     private static InputManager _instance = null;
 
-    public Vector3 movementInput {  get; private set; }
+
+    public Vector3 movementInput {  get; private set; 
+
+    pulic Action<Vector2> FingerDownAction = null;
+
+
+    public void OnEnable()
+    {
+        EnhancedTouch.TouchSimulation.Enable();
+        EnhancedTouch.EnhancedTouchSupport.Enable();
+
+        Touch.onFingerDown += OnFingerDown;
+
+    }
+
+    private void OnFingerDown(Finger finger)
+    {
+        Vector2 screenPosTouch = finger.screenPosition;
+        RectTransform joystickRect = UIManager.instance.Joystick.transform as RectTransform;
+
+        if (!joystickRect.offsetMin.x <= screenPosTouch.x && !joystickRect.offsetMin.y <= screenPosTouch.y)
+        {
+            FingerDownAction.Invoke(screenPosTouch);
+        }
+
+    }
+
+    public void OnDisable()
+    {
+        Touch.onFingerDown -= OnFingerDown;
+
+        EnhancedTouch.Touch.onFingerDown -= OnFingerDown;
+        EnhancedTouch.TouchSimulation.Disable();
+    }
 
     private void Awake()
     {

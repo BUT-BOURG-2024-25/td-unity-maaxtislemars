@@ -16,30 +16,39 @@ public class SpawnCubeOnClick : MonoBehaviour
 
     private void Start()
     {
-        InputManager.instance.registerOnMouseClick(spawnCube, true);
+        InputManager.instance.registerOnMouseClick(spawnCubeByClick, true);
+        InputManager.instance.FingerDownAction += OnFingerDown;
     }
 
     private void OnDestroy()
     {
-        InputManager.instance.registerOnMouseClick(spawnCube, false);
+        InputManager.instance.registerOnMouseClick(spawnCubeByClick, false);
+        InputManager.instance.FingerDownAction -= OnFingerDown;
     }
 
-    private void spawnCube(InputAction.CallbackContext callbackContext)
+    private void OnFingerDown(Vector2 screenPosition)
     {
-        Ray cameraRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+        spawnCube(screenPosition);
+    }
 
-        //Debug.DrawRay(cameraRay.origin, cameraRay.di)
+    private void spawnCubeByClick(InputAction.CallbackContext callbackContext)
+    {
+        spawnCube(Input.mousePosition);
+
+    }
+    private void spawnCube(Vector2 screenPosition)
+    {
+        Ray cameraRay = Camera.main.ScreenPointToRay(screenPosition);
 
         RaycastHit hitInfo;
 
-        bool raycastHasHit = Physics.Raycast(cameraRay, out hitInfo, 10000,GroundLayer);
+        bool raycastHasHit = Physics.Raycast(cameraRay, out hitInfo, 10000, GroundLayer);
 
         if (raycastHasHit && objectToSpawn != null)
         {
             GameObject.Instantiate(objectToSpawn, hitInfo.point, Quaternion.identity);
 
         }
-
     }
 
     void Update()
